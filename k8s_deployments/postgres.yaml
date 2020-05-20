@@ -1,0 +1,190 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  namespace: airflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      containers:
+      - name: postgresql
+        image: postgres:12
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1500m"
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: data
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD
+          value: admin
+        - name: POSTGRES_USER
+          value: admin
+        - name: POSTGRES_DB
+          value: airflow
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: postgresql-claim
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: postgresql
+  name: postgresql
+  namespace: airflow
+spec:
+  ports:
+  - name: postgresql
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: postgresql
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+spec:
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+      - name: pgadmin
+        image: dpage/pgadmin4
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "500m"
+          limits:
+            memory: "500Mi"
+            cpu: "800m"
+        ports:
+        - containerPort: 80
+        env:
+        - name: PGADMIN_DEFAULT_EMAIL
+          value: admin
+        - name: PGADMIN_DEFAULT_PASSWORD
+          value: admin
+        volumeMounts:
+        - mountPath: /var/lib/pgadmin
+          name: data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: pgadmin-claim
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: pgadmin
+  name: pgadmin
+  namespace: airflow
+spec:
+  ports:
+  - name: pgadmin
+    port: 5050
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: pgadmin
+  type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgresql
+  namespace: airflow
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1G
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Users/michalmarszalek/k8s_data/postgres"
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pgadmin
+  namespace: airflow
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1G
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Users/michalmarszalek/k8s_data/pgadmin"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-claim
+  namespace: airflow
+spec:
+  storageClassName: ""
+  volumeName: postgresql
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500M 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pgadmin-claim
+  namespace: airflow
+spec:
+  storageClassName: ""
+  volumeName: pgadmin
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500M

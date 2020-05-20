@@ -1,0 +1,30 @@
+version: '3.4'
+services:
+  db:
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+      POSTGRES_DB: airflow
+    volumes:
+      - "data:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "5050:80"
+    volumes:
+      - "pgadmin_data:/var/lib/pgadmin"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - "db"
+
+volumes:
+  pgadmin_data:
+  data:

@@ -1,0 +1,25 @@
+version: '3.4'
+services:
+    webserver:
+      image: airflow_mm:1.0
+      restart: always
+      command: webserver
+      ports:
+        - "8080:8080"
+      environment:
+        - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+        - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://admin:admin@db/airflow
+        - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      depends_on:
+        - "db"
+
+    scheduler:
+      image: airflow_mm:1.0
+      restart: always
+      command: scheduler
+      environment:
+        - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+        - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://admin:admin@db/airflow
+        - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      depends_on:
+        - "db"
