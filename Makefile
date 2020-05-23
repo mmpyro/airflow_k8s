@@ -30,6 +30,9 @@ local_postgres:
 local_airflow:
 	docker-compose -f docker-compose.yml -f docker-compose-airflow.yml up -d
 
+local_airflow_stop:
+	docker-compose -f docker-compose.yml -f docker-compose-airflow.yml stop webserver scheduler
+
 local_down:
 	docker-compose -f docker-compose.yml -f docker-compose-airflow.yml down
 

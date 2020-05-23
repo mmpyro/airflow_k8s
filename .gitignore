@@ -1,3 +1,4 @@
 .virtualenvs
 logs
 airflow.db
+.vscode

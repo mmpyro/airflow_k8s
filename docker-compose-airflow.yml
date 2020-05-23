@@ -10,6 +10,10 @@ services:
         - AIRFLOW__CORE__EXECUTOR=LocalExecutor
         - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://admin:admin@db/airflow
         - AIRFLOW__CORE__LOAD_EXAMPLES=False
+        - AIRFLOW__CORE__BASE_LOG_FOLDER=/logs
+        - AIRFLOW__CORE__FERNET_KEY="7y3v6WymWIdCfWw3qneXCBbbFRSSLI35jfGe7cyQNhs="
+      volumes:
+        - "./logs:/logs"
       depends_on:
         - "db"
 
@@ -21,5 +25,9 @@ services:
         - AIRFLOW__CORE__EXECUTOR=LocalExecutor
         - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://admin:admin@db/airflow
         - AIRFLOW__CORE__LOAD_EXAMPLES=False
+        - AIRFLOW__CORE__BASE_LOG_FOLDER=/logs
+        - AIRFLOW__CORE__FERNET_KEY="7y3v6WymWIdCfWw3qneXCBbbFRSSLI35jfGe7cyQNhs="
+      volumes:
+        - "./logs:/logs"
       depends_on:
         - "db"
